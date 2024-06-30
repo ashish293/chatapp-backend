@@ -1,13 +1,13 @@
 import { Router } from "express";
 import { isAuthenticated } from "../middlewares/auth.js";
 import { getAllChat, getMessages, sendMessage } from "../controllers/chat.js";
-import { multerAttachment } from "../middlewares/multer.js";
+import { upload } from "../middlewares/multerStorage.js";
 
 const chatRouter = Router();
 
 chatRouter.use(isAuthenticated)
   .get('/all', getAllChat)
   .get('/messages/:chatId', getMessages)
-  .post('/message/:chatId', multerAttachment, sendMessage)
+  .post('/message/:chatId', upload.single("file"), sendMessage)
 
 export default chatRouter

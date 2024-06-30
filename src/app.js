@@ -6,7 +6,7 @@ import { config } from 'dotenv';
 import { connectDb } from './utils/connectDbCloud.js';
 import { errorMiddleware } from './middlewares/error.js';
 import cookieParser from 'cookie-parser';
-import { seedUsers, seedDirectChat, seedMessages } from './seeders/user.js';
+// import { seedUsers, seedDirectChat, seedMessages } from './seeders/user.js';
 config();
 const port = process.env.PORT || 9000;
 
@@ -24,5 +24,5 @@ app.use(cors());
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-// app.use('/api', routes);
-// app.use(errorMiddleware);
+app.use('/api', routes);
+app.use(errorMiddleware);

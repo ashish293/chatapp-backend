@@ -16,6 +16,7 @@ const getAllChat = TryCatch(async (req, res, next) => {
 const sendMessage = TryCatch(async (req, res, next) => {
   const { chatId } = req.params;
   const { message } = req.body;
+  console.log(req.file);
 
   const [chat, user] = await Promise.all([Chat.findById(chatId), User.findById(req.user._id)]);
   if (!chat) {
@@ -51,7 +52,6 @@ const sendMessage = TryCatch(async (req, res, next) => {
 const getMessages = TryCatch(async (req, res, next) => {
   const limit = parseInt(req.query.limit) || 20;
   const skip = (parseInt(req.query.page) - 1) * limit || 0;
-
   const { chatId } = req.params;
   const chat = await Chat.findById(chatId);
   if (!chat) {

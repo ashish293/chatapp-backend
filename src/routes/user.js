@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { findUser, signin, signup, uploadPhoto, } from '../controllers/user.js';
-import { multerSingleImage } from "../middlewares/multer.js";
+// import { multerSingleImage } from "../middlewares/multer.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 
 
@@ -10,6 +10,6 @@ userRouter
   .post('/signin', signin)
   .use(isAuthenticated)
   .get('/find', findUser)
-  .post('/uploadPhoto', multerSingleImage, uploadPhoto)
+  .post('/uploadPhoto', uploadPhoto)
 
 export default userRouter;
