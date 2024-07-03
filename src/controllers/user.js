@@ -34,6 +34,11 @@ const signin = TryCatch(async (req, res, next) => {
   sendToken(res, { _id: existingUser._id, name: existingUser.name }, 200, 'Login successful');
 })
 
+const logout = TryCatch(async (req, res, next) => {
+  res.clearCookie('chat-token');
+  res.status(200).json({ success: true, message: 'Logged out successfully' });
+})
+
 const findUser = TryCatch(async (req, res, next) => {
   const { name } = req.query;
   const userList = await User.find({ name: { $regex: name, $options: 'i' } });
@@ -48,4 +53,4 @@ const uploadPhoto = TryCatch(async (req, res, next) => {
   res.status(200).json({ message: 'Photo uploaded successfully' });
 })
 
-export { signup, signin, findUser, uploadPhoto };
+export { signup, signin, findUser, uploadPhoto, logout };

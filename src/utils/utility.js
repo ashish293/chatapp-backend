@@ -13,7 +13,7 @@ const sendToken = (res, user, code, message) => {
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET)
   const options = {
     expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-    httpOnly: true,
+    httpOnly: false,
     secure: true
   };
   res.status(code).cookie("chat-token", token, options).json({
