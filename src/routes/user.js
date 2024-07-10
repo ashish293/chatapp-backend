@@ -1,16 +1,17 @@
 import { Router } from "express";
-import { findUser, logout, signin, signup, uploadPhoto, } from '../controllers/user.js';
+import { findUser, logout, login, signup, update, } from '../controllers/user.js';
 // import { multerSingleImage } from "../middlewares/multer.js";
 import { isAuthenticated } from "../middlewares/auth.js";
+import { upload } from "../middlewares/multerStorage.js";
 
 
 const userRouter = Router();
 userRouter
-  .post('/signup', signup)
-  .post('/signin', signin)
+  .post('/signup', upload.single('image'), signup)
+  .post('/login', login)
   .use(isAuthenticated)
   .post('/logout', logout)
   .get('/find', findUser)
-  .post('/uploadPhoto', uploadPhoto)
+  .post('/update', upload.single('image'), update)
 
 export default userRouter;

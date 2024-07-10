@@ -15,12 +15,7 @@ const UserSchema = new Schema({
     required: true,
   },
   image: {
-    public_id: {
-      type: String,
-    },
-    url: {
-      type: String,
-    },
+    type: String,
   },
 });
 

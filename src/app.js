@@ -6,15 +6,15 @@ import { config } from 'dotenv';
 import { connectDb } from './utils/connectDbCloud.js';
 import { errorMiddleware } from './middlewares/error.js';
 import cookieParser from 'cookie-parser';
-// import { seedUsers, seedDirectChat, seedMessages } from './seeders/user.js';
+import morgan from 'morgan';
+// import { seedUsers, seedDirectChat, seedMessages, seedGroupChat } from './seeders/user.js';
 config();
 const port = process.env.PORT || 9000;
 
 
 const app = express();
-// seedUsers(10)
-// await seedMessages();
-connectDb();
+await connectDb();
+app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));

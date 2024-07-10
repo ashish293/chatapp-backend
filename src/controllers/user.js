@@ -18,7 +18,7 @@ const signup = TryCatch(async (req, res, next) => {
   sendToken(res, { _id: newUser._id, name: newUser.name }, 201, 'User created successfully');
 })
 
-const signin = TryCatch(async (req, res, next) => {
+const login = TryCatch(async (req, res, next) => {
   const { password, email } = req.body;
   if (!password || !email) {
     return next(new ErrorHandler(400, 'All fields are required'))
@@ -48,9 +48,20 @@ const findUser = TryCatch(async (req, res, next) => {
   res.status(200).json(userList.map((user) => ({ name: user.name, email: user.email, _id: user._id })));
 })
 
-const uploadPhoto = TryCatch(async (req, res, next) => {
-
+const update = TryCatch(async (req, res, next) => {
+  const { name, email, password, image } = req.body;
+  const user = await User.findById(req.user ? _id);
+  if (!user) {
+    return next(new ErrorHandler(404, 'User not found'))
+  }
+  const hashPassword = await bcrypt.hash(password, 10);
+  user.name = name;
+  user.email = email;
+  user.password = password;
+  user.image = image;
+  console.log(name, email, hashPassword, image);
+  console.log(req.file);
   res.status(200).json({ message: 'Photo uploaded successfully' });
 })
 
-export { signup, signin, findUser, uploadPhoto, logout };
+export { signup, login, findUser, update, logout };

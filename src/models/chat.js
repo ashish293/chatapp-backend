@@ -8,6 +8,9 @@ const ChatSchema = new Schema({
   isGroup: {
     type: Boolean
   },
+  image: {
+    type: String
+  },
   creator: {
     type: Types.ObjectId,
     ref: "User",
@@ -22,6 +25,10 @@ const ChatSchema = new Schema({
     type: Date,
     default: Date.now
   },
+  lastMessage: {
+    type: Types.ObjectId,
+    ref: "Message"
+  }
 })
 
 const Chat = mongoose.models.Chat || model("Chat", ChatSchema);
