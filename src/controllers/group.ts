@@ -1,7 +1,8 @@
-import { ALERT, REFREST_CHAT } from "../constant/event.js";
-import { TryCatch } from "../middlewares/error.js";
-import Chat from "../models/chat.js";
-import { ErrorHandler, emitEvent, sendSuccess } from "../utils/utility.js";
+// import { ALERT, REFREST_CHAT } from "../constant/event";
+import { TryCatch } from "../middlewares/error";
+import Chat from "../models/chat";
+import Message from "../models/message";
+import { ErrorHandler, emitEvent, sendSuccess } from "../utils/utility";
 
 const newGroup = TryCatch(async (req, res, next) => {
 
@@ -11,15 +12,15 @@ const newGroup = TryCatch(async (req, res, next) => {
   } else if (members.length < 1) {
     return next(new ErrorHandler(400, 'Select at least one member'))
   }
-  const allMembers = [req.user ? _id, ...members];
-  await Chat.create({ name, members: allMembers, creator: req.user ? _id, isGroup: true });
-  emitEvent(REFREST_CHAT, allMembers);
-  emitEvent(ALERT, members);
+  const allMembers = [req.user._id, ...members];
+  await Chat.create({ name, members: allMembers, creator: req.user._id, isGroup: true });
+  // emitEvent(REFREST_CHAT, allMembers);
+  // emitEvent(ALERT, members);
   sendSuccess({ res, message: 'Group created successfully', status: 201 });
 })
 
 const getMyGroup = TryCatch(async (req, res, next) => {
-  const chatList = await Chat.find({ creator: req.user ? _id, isGroup: true }).populate("members", "name email image");
+  const chatList = await Chat.find({ creator: req.user._id, isGroup: true }).populate("members", "name email image");
   sendSuccess({ res, data: chatList });
 })
 
@@ -35,8 +36,8 @@ const addMember = TryCatch(async (req, res, next) => {
   if (!chat.isGroup) {
     return next(new ErrorHandler(400, 'This is not a group chat'))
   }
-  console.log(chat.creator, req.user ? _id);
-  if (chat.creator.toString() !== req.user ? _id.toString()) {
+  console.log(chat.creator, req.user._id);
+  if (chat.creator.toString() !== req.user._id.toString()) {
     return next(new ErrorHandler(400, 'Only group Admin can add members'))
   }
   if (chat.members.includes(userId)) {
@@ -44,7 +45,7 @@ const addMember = TryCatch(async (req, res, next) => {
   }
   chat.members.push(userId);
   await chat.save();
-  emitEvent(REFREST_CHAT, chat.members);
+  // emitEvent(REFREST_CHAT, chat.members);
   sendSuccess({ res, message: 'Member added successfully' });
 })
 
@@ -63,7 +64,7 @@ const removeMember = TryCatch(async (req, res, next) => {
   const index = chat.members.indexOf(userId);
   chat.members.splice(index, 1);
   await chat.save();
-  emitEvent(REFREST_CHAT, chat.members);
+  // emitEvent(REFREST_CHAT, chat.members);
   sendSuccess({ res, message: 'Member removed successfully' });
 })
 
@@ -76,20 +77,20 @@ const leaveGroup = TryCatch(async (req, res, next) => {
   if (!chat) {
     return next(new ErrorHandler(404, 'Chat not found'))
   }
-  if (!chat.members.includes(req.user ? _id)) {
+  if (!chat.members.includes(req.user._id)) {
     return next(new ErrorHandler(400, 'User not in the group'))
   }
   if (!chat.isGroup) {
     return next(new ErrorHandler(400, 'This is not a group chat'))
   }
-  if (chat.creator === req.user ? _id) {
+  if (chat.creator === req.user._id) {
     return next(new ErrorHandler(400, 'Group Admin cannot leave, you can only delete the group'))
   }
   // TODO: delete attachment form cloudinary
-  const index = chat.members.indexOf(req.user ? _id);
+  const index = chat.members.indexOf(req.user._id);
   chat.members.splice(index, 1);
   await chat.save();
-  emitEvent(REFREST_CHAT, chat.members);
+  // emitEvent(REFREST_CHAT, chat.members);
   sendSuccess({ res, message: 'Left group successfully' });
 })
 
@@ -102,13 +103,12 @@ const deleteGroup = TryCatch(async (req, res, next) => {
   if (!chat) {
     return next(new ErrorHandler(404, 'Chat not found'))
   }
-  if (!chat.creator === req.user ? _id) {
+  if (chat.creator !== req.user._id) {
     return next(new ErrorHandler(400, 'Only group Admin can delete'))
   }
-
   // TODO: delete attachment form cloudinary
-
-  await chat.remove();
+  await Message.deleteMany({ chatId });
+  await Chat.findByIdAndDelete(chatId);
   sendSuccess({ res, message: 'Group deleted successfully' });
 })
 
@@ -121,12 +121,12 @@ const updateGroup = TryCatch(async (req, res, next) => {
   if (!chat) {
     return next(new ErrorHandler(404, 'Chat not found'))
   }
-  if (!chat.creator === req.user ? _id) {
+  if (chat.creator !== req.user._id) {
     return next(new ErrorHandler(400, 'Only group Admin can update'))
   }
   chat.name = name;
   await chat.save();
-  emitEvent(REFREST_CHAT, chat.members);
+  // emitEvent(REFREST_CHAT, chat.members);
   sendSuccess({ res, message: 'Group updated successfully' });
 })
 

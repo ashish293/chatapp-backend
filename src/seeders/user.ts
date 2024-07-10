@@ -1,7 +1,7 @@
-import User from "../models/user.js";
+import User from "../models/user";
 import { faker } from "@faker-js/faker";
-import Chat from "../models/chat.js";
-import Message from "../models/message.js";
+import Chat from "../models/chat";
+import Message from "../models/message";
 
 
 const seedUsers = async () => {

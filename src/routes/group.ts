@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { isAuthenticated } from "../middlewares/auth.js";
-import { addMember, deleteGroup, getMyGroup, leaveGroup, newGroup, removeMember, updateGroup } from "../controllers/group.js";
+import { isAuthenticated } from "../middlewares/auth";
+import { addMember, deleteGroup, getMyGroup, leaveGroup, newGroup, removeMember, updateGroup } from "../controllers/group";
 
 const groupRouter = Router();
 

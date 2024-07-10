@@ -1,19 +1,20 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import routes from './routes/index.js';
+import routes from './routes/index';
 import { config } from 'dotenv';
-import { connectDb } from './utils/connectDbCloud.js';
-import { errorMiddleware } from './middlewares/error.js';
+import { connectDb } from './utils/connectDbCloud';
+import { errorMiddleware } from './middlewares/error';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import "./types/express"
 // import { seedUsers, seedDirectChat, seedMessages, seedGroupChat } from './seeders/user.js';
 config();
 const port = process.env.PORT || 9000;
 
 
 const app = express();
-await connectDb();
+connectDb();
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(bodyParser.json());

@@ -1,7 +1,7 @@
-import { TryCatch } from "../middlewares/error.js";
-import User from "../models/user.js";
+import { TryCatch } from "../middlewares/error";
+import User,{ IUser } from "../models/user";
 import bcrypt from 'bcrypt';
-import { ErrorHandler, sendToken } from "../utils/utility.js";
+import { ErrorHandler, sendToken } from "../utils/utility";
 
 const signup = TryCatch(async (req, res, next) => {
   const { name, password, email } = req.body;
@@ -50,7 +50,7 @@ const findUser = TryCatch(async (req, res, next) => {
 
 const update = TryCatch(async (req, res, next) => {
   const { name, email, password, image } = req.body;
-  const user = await User.findById(req.user ? _id);
+  const user = await User.findById(req.user._id);
   if (!user) {
     return next(new ErrorHandler(404, 'User not found'))
   }
