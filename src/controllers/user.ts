@@ -15,7 +15,7 @@ const signup = TryCatch(async (req, res, next) => {
   const hashPassword = await bcrypt.hash(password, 10);
   const newUser = new User({ name, email, password: hashPassword });
   await newUser.save();
-  sendToken(res, { _id: newUser._id, name: newUser.name }, 201, 'User created successfully');
+  sendToken(res, { id: newUser.id, name: newUser.name }, 201, 'User created successfully');
 })
 
 const login = TryCatch(async (req, res, next) => {
@@ -31,7 +31,7 @@ const login = TryCatch(async (req, res, next) => {
   if (!isPasswordCorrect) {
     return next(new ErrorHandler(400, 'Invalid credentials'))
   }
-  sendToken(res, { _id: existingUser._id, name: existingUser.name }, 200, 'Login successful');
+  sendToken(res, { id: existingUser.id, name: existingUser.name }, 200, 'Login successful');
 })
 
 const logout = TryCatch(async (req, res, next) => {
@@ -45,12 +45,12 @@ const findUser = TryCatch(async (req, res, next) => {
   if (!userList) {
     return next(new ErrorHandler(404, 'User not found'))
   }
-  res.status(200).json(userList.map((user) => ({ name: user.name, email: user.email, _id: user._id })));
+  res.status(200).json(userList.map((user) => ({ name: user.name, email: user.email, _id: user.id })));
 })
 
 const update = TryCatch(async (req, res, next) => {
   const { name, email, password, image } = req.body;
-  const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user.id);
   if (!user) {
     return next(new ErrorHandler(404, 'User not found'))
   }
@@ -60,7 +60,7 @@ const update = TryCatch(async (req, res, next) => {
   user.password = password;
   user.image = image;
   console.log(name, email, hashPassword, image);
-  console.log(req.file);
+  // console.log(req.file);
   res.status(200).json({ message: 'Photo uploaded successfully' });
 })
 

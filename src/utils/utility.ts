@@ -3,7 +3,7 @@ import { Response } from 'express';
 import { Document, ObjectId, Types } from 'mongoose';
 
 interface UserType {
-  _id: Types.ObjectId;
+  id: string;
   name: string;
 }
 
@@ -16,7 +16,7 @@ class ErrorHandler extends Error {
 }
 
 const sendToken = (res: Response, user: UserType, code: number, message: string) => {
-  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET!);
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!);
   const options = {
     expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
     httpOnly: true, // set to true to prevent client-side access to the cookie

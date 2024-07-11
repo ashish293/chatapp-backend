@@ -3,6 +3,7 @@ import mongoose, { Schema, model, Document, Types, Model } from 'mongoose';
 // Define the interface for the Chat document
 export interface IChat extends Document {
   _id: Types.ObjectId;
+  id: string;
   name: string;
   isGroup: boolean;
   image?: string;
@@ -14,6 +15,12 @@ export interface IChat extends Document {
 
 // Define the Chat schema
 const ChatSchema = new Schema<IChat>({
+  id:{
+    type:String,
+    required:true,
+    unique:true,
+    immutable: true
+  },
   name: {
     type: String,
     required: true
@@ -44,7 +51,7 @@ const ChatSchema = new Schema<IChat>({
   lastMessage: {
     type: Schema.Types.ObjectId,
     ref: "Message"
-  }
+  },
 });
 
 // Export the Chat model

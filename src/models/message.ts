@@ -3,6 +3,7 @@ import mongoose, { Schema, model, Types, Model, Document} from "mongoose";
 
 interface IMessage extends Document {
   _id: Types.ObjectId;
+  id: string;
   sender: Types.ObjectId;
   content: string;
   attachments: string[];
@@ -13,6 +14,12 @@ interface IMessage extends Document {
 
 
 const MessageSchema = new Schema<IMessage>({
+  id:{
+    type:String,
+    required:true,
+    unique:true,
+    immutable: true
+  }, 
   sender: {
     type: Schema.Types.ObjectId,
     ref: "User",

@@ -1,9 +1,8 @@
-import { JwtPayload } from 'jsonwebtoken';
 import { Types } from 'mongoose';
 
 
 interface UserType{
-  _id: Types.ObjectId
+  id: string
 }
 
 
