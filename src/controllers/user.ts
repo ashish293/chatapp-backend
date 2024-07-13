@@ -2,6 +2,7 @@ import { TryCatch } from "../middlewares/error";
 import User,{ IUser } from "../models/user";
 import bcrypt from 'bcrypt';
 import { ErrorHandler, sendToken } from "../utils/utility";
+import {v4 as uuid} from 'uuid';
 
 const signup = TryCatch(async (req, res, next) => {
   const { name, password, email } = req.body;
@@ -13,7 +14,7 @@ const signup = TryCatch(async (req, res, next) => {
     return next(new ErrorHandler(400, 'User already exists'))
   }
   const hashPassword = await bcrypt.hash(password, 10);
-  const newUser = new User({ name, email, password: hashPassword });
+  const newUser = new User({ id: uuid(), name, email, password: hashPassword });
   await newUser.save();
   sendToken(res, { id: newUser.id, name: newUser.name }, 201, 'User created successfully');
 })
@@ -41,16 +42,16 @@ const logout = TryCatch(async (req, res, next) => {
 
 const findUser = TryCatch(async (req, res, next) => {
   const { name } = req.query;
-  const userList = await User.find({ name: { $regex: name, $options: 'i' } });
+  const userList = await User.find({ name: { $regex: name, $options: 'i' } }).select("name email image id -_id");
   if (!userList) {
     return next(new ErrorHandler(404, 'User not found'))
   }
-  res.status(200).json(userList.map((user) => ({ name: user.name, email: user.email, _id: user.id })));
+  res.status(200).json(userList);
 })
 
 const update = TryCatch(async (req, res, next) => {
   const { name, email, password, image } = req.body;
-  const user = await User.findById(req.user.id);
+  const user = await User.findOne({id:req.user.id});
   if (!user) {
     return next(new ErrorHandler(404, 'User not found'))
   }

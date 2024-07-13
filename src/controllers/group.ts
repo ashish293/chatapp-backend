@@ -2,6 +2,7 @@
 import { TryCatch } from "../middlewares/error";
 import Chat from "../models/chat";
 import Message from "../models/message";
+import User from "../models/user";
 import { ErrorHandler, emitEvent, sendSuccess } from "../utils/utility";
 
 const newGroup = TryCatch(async (req, res, next) => {
@@ -73,22 +74,23 @@ const leaveGroup = TryCatch(async (req, res, next) => {
   if (!chatId) {
     return next(new ErrorHandler(400, 'chatId is required'))
   }
-  const chat = await Chat.findById(chatId);
+  const chat = await Chat.findOne({id:chatId});
   if (!chat) {
     return next(new ErrorHandler(404, 'Chat not found'))
   }
-  if (!chat.members.includes(req.user.id)) {
+  const user = await User.findOne({id:req.user.id});
+  if (!user || !chat.members.includes(user?._id)) {
     return next(new ErrorHandler(400, 'User not in the group'))
   }
   if (!chat.isGroup) {
     return next(new ErrorHandler(400, 'This is not a group chat'))
   }
-  if (chat.creator === req.user.id) {
+  if (chat.creator === user.id) {
     return next(new ErrorHandler(400, 'Group Admin cannot leave, you can only delete the group'))
   }
   // TODO: delete attachment form cloudinary
-  const index = chat.members.indexOf(req.user.id);
-  chat.members.splice(index, 1);
+  // const index = chat.members.indexOf(req.user.id);
+  // chat.members.splice(index, 1);
   await chat.save();
   // emitEvent(REFREST_CHAT, chat.members);
   sendSuccess({ res, message: 'Left group successfully' });
@@ -99,11 +101,12 @@ const deleteGroup = TryCatch(async (req, res, next) => {
   if (!chatId) {
     return next(new ErrorHandler(400, 'chatId is required'))
   }
-  const chat = await Chat.findById(chatId);
+  const chat = await Chat.findOne({id:chatId});
   if (!chat) {
     return next(new ErrorHandler(404, 'Chat not found'))
   }
-  if (chat.creator !== req.user.id) {
+  const user = await User.findOne({id:req.user.id});
+  if (!user || chat.creator !== user.id) {
     return next(new ErrorHandler(400, 'Only group Admin can delete'))
   }
   // TODO: delete attachment form cloudinary
@@ -117,11 +120,12 @@ const updateGroup = TryCatch(async (req, res, next) => {
   if (!chatId) {
     return next(new ErrorHandler(400, 'chatId is required'))
   }
-  const chat = await Chat.findById(chatId);
+  const chat = await Chat.findOne({id:chatId});
   if (!chat) {
     return next(new ErrorHandler(404, 'Chat not found'))
   }
-  if (chat.creator !== req.user.id) {
+  const user = await User.findOne({id:req.user.id});
+  if (!user || chat.creator !== user.id) {
     return next(new ErrorHandler(400, 'Only group Admin can update'))
   }
   chat.name = name;

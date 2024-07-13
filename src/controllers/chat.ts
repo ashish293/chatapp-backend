@@ -2,15 +2,20 @@
 import { TryCatch } from "../middlewares/error";
 import Chat from "../models/chat";
 import Message from "../models/message";
+import Request from "../models/request";
 import User from "../models/user";
 import { ErrorHandler, emitEvent, sendSuccess } from "../utils/utility";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 
 const getAllChat = TryCatch(async (req, res, next) => {
   const pageSize = parseInt(req.query.pageSize as string) || 20;
   const skip = (parseInt(req.query.page as string) - 1) * pageSize || 0;
-  const chatList = (await Chat.find({ members: req.user.id }).select("-__v").lean()).splice(0, 1);
+  const user = await User.findOne({ id: req.user.id });
+  if(!user){
+    return next(new ErrorHandler(404, "User not found"));
+  }
+  const chatList = (await Chat.find({ members: user._id }).select("-__v").lean()).splice(0, 1);
 
   const result = await Promise.all(chatList.map(async (item) => {
     if (item?.isGroup) {
@@ -26,7 +31,6 @@ const getAllChat = TryCatch(async (req, res, next) => {
     }
   }))
 
-  console.log(result);
   sendSuccess({ res, data: result });
 });
 
@@ -46,8 +50,9 @@ const sendMessage = TryCatch(async (req, res, next) => {
 
   // Upload file here
   const attachments:string[] = [];
-
+  const msgId = uuid()
   const messageForRealtime = {
+    id: msgId,
     content: message,
     attachments,
     sender: {
@@ -57,7 +62,7 @@ const sendMessage = TryCatch(async (req, res, next) => {
     chatId,
     time: new Date(),
   };
-  const messageForDB = { content: message, attachments, sender: user.id, chatId };
+  const messageForDB = { id: msgId, content: message, attachments, sender: user.id, chatId };
   const newMessage = await Message.create(messageForDB);
   chat.lastMessage = newMessage._id;
   await chat.save();
@@ -94,4 +99,59 @@ const getMessages = TryCatch(async (req, res, next) => {
   sendSuccess({ res, data: { messages, totalPages, pageSize, page: parseInt(req.query.page as string) } });
 });
 
-export { getAllChat, sendMessage, getMessages };
+const sendRequest = TryCatch(async (req, res, next) => {
+  const target = req.body.userid;
+  if(!target){
+    return next(new ErrorHandler(400, "userid is required"));
+  }
+  const [user, user2] = await Promise.all([User.findOne({id:req.user.id}), User.findOne({id:target})]);
+
+  if(!user || !user2){
+    return next(new ErrorHandler(404, "User not found"));
+  }
+  await Request.create({
+    id:uuid(),
+    status:'pending',
+    sender:user._id,
+    receiver:user2._id,
+  })
+  sendSuccess({ res, message: "Chat requested successfully" });
+})
+
+const acceptRequest = TryCatch(async (req, res, next) => {
+  const requestId = req.body.requestId;
+  if(!requestId){
+    return next(new ErrorHandler(400, "requestId is required"));
+  }
+  const request = await Request.findOne({id:requestId});
+  if(!request){
+    return next(new ErrorHandler(404, "Request not found"));
+  }
+  const [user, user2] = await Promise.all([User.findOne({id:req.user.id}), User.findOne({id:request.sender})]);
+  console.log(user, user2);
+  
+
+  if(!user || !user2){
+    return next(new ErrorHandler(404, "User not found"));
+  }
+  const chat = await Chat.create({
+    id:uuid(),
+    isGroup:false,
+    name:"Direct",
+    members:[user._id, user2._id],
+    creator:user._id
+  })
+  await Request.updateOne({sender:user._id, receiver:user2._id}, {status:'accepted'})
+  sendSuccess({ res, message: "Chat accepted successfully" });
+})
+
+const getAllRequest = TryCatch(async (req, res, next) => {
+  const user = await User.findOne({id:req.user.id});
+  if(!user){
+    return next(new ErrorHandler(404, "User not found"));
+  }
+  const requests = await Request.find({receiver:user._id, status:'pending'}).select("id status sender -_id").populate("sender", "name email image -_id");
+  sendSuccess({ res, data: requests });
+})
+
+export { getAllChat, sendMessage, getMessages, sendRequest, acceptRequest, getAllRequest };
