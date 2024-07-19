@@ -8,12 +8,30 @@ import { errorMiddleware } from './middlewares/error';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import "./types/express"
+import { createServer } from 'node:http';
+import { Server } from 'socket.io';
+
 // import { seedUsers, seedDirectChat, seedMessages, seedGroupChat } from './seeders/user.js';
 config();
 const port = process.env.PORT || 9000;
 
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors:{
+    origin: 'http://localhost:5173',
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+});
+
+io.on('disconnect', () => {
+  console.log('user disconnected');
+});
+
 connectDb();
 app.use(morgan('dev'));
 app.use(cookieParser());
@@ -25,7 +43,7 @@ app.use(cors({
 }));
 
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 app.use('/api', routes);

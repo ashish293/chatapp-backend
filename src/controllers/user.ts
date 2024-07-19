@@ -1,7 +1,7 @@
 import { TryCatch } from "../middlewares/error";
 import User,{ IUser } from "../models/user";
 import bcrypt from 'bcrypt';
-import { ErrorHandler, sendToken } from "../utils/utility";
+import { ErrorHandler, sendSuccess, sendToken } from "../utils/utility";
 import {v4 as uuid} from 'uuid';
 
 const signup = TryCatch(async (req, res, next) => {
@@ -16,7 +16,7 @@ const signup = TryCatch(async (req, res, next) => {
   const hashPassword = await bcrypt.hash(password, 10);
   const newUser = new User({ id: uuid(), name, email, password: hashPassword });
   await newUser.save();
-  sendToken(res, { id: newUser.id, name: newUser.name }, 201, 'User created successfully');
+  sendToken(res, { id: newUser.id, name: newUser.name, image: newUser.image, email: newUser.email }, 201, 'User created successfully');
 })
 
 const login = TryCatch(async (req, res, next) => {
@@ -32,7 +32,7 @@ const login = TryCatch(async (req, res, next) => {
   if (!isPasswordCorrect) {
     return next(new ErrorHandler(400, 'Invalid credentials'))
   }
-  sendToken(res, { id: existingUser.id, name: existingUser.name }, 200, 'Login successful');
+  sendToken(res, { id: existingUser.id, name: existingUser.name, image: existingUser.image, email: existingUser.email }, 200, 'Login successful');
 })
 
 const logout = TryCatch(async (req, res, next) => {
@@ -41,12 +41,18 @@ const logout = TryCatch(async (req, res, next) => {
 })
 
 const findUser = TryCatch(async (req, res, next) => {
-  const { name } = req.query;
-  const userList = await User.find({ name: { $regex: name, $options: 'i' } }).select("name email image id -_id");
+  const { name, email } = req.query;
+
+  let userList;
+  if(email){
+    userList = await User.find({ email }).select("name email image id -_id");
+  }else{
+    userList = await User.find({ name: { $regex: name, $options: 'i' } }).select("name email image id -_id");
+  }
   if (!userList) {
     return next(new ErrorHandler(404, 'User not found'))
   }
-  res.status(200).json(userList);
+  sendSuccess({ res, data: userList })
 })
 
 const update = TryCatch(async (req, res, next) => {
@@ -62,7 +68,7 @@ const update = TryCatch(async (req, res, next) => {
   user.image = image;
   console.log(name, email, hashPassword, image);
   // console.log(req.file);
-  res.status(200).json({ message: 'Photo uploaded successfully' });
+  sendToken(res, { id: user.id, name: user.name, image: user.image, email: user.email }, 200, 'User updated successfully');
 })
 
 export { signup, login, findUser, update, logout };

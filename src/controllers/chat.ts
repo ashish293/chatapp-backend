@@ -15,14 +15,15 @@ const getAllChat = TryCatch(async (req, res, next) => {
   if(!user){
     return next(new ErrorHandler(404, "User not found"));
   }
-  const chatList = (await Chat.find({ members: user._id }).select("-__v").lean()).splice(0, 1);
-
+  const chatList = await Chat.find({ members: user._id }).select("-__v -_id").lean();
   const result = await Promise.all(chatList.map(async (item) => {
     if (item?.isGroup) {
       return item;
     } else {
-      const user2Id = item.members.find((member) => member.toString() !== req.user.id.toString());
-      const user2 = await User.findOne({id: user2Id});
+      const currentUser = await User.findOne({ id: req.user.id });
+      if(!currentUser) return;
+      const user2Id = item.members.find((member) => member.toString()!==currentUser._id.toString());
+      const user2 = await User.findById( user2Id);
       if(!user2) return
       item.name = user2.name;
       item.image = user2.image;
@@ -43,8 +44,10 @@ const sendMessage = TryCatch(async (req, res, next) => {
     return next(new ErrorHandler(404, "Chat not found"));
   }else if(!user){
     return next(new ErrorHandler(404, "User not found"));
-  }else if (!chat.members.includes(user.id)) {
+  }else if (!chat.members.includes(user._id)) {
     return next(new ErrorHandler(400, "User not in this Chat"));
+  }else if(!message){
+    return next(new ErrorHandler(400, "Message is required"));
   }
   // const files = req.files || [];
 
@@ -62,7 +65,7 @@ const sendMessage = TryCatch(async (req, res, next) => {
     chatId,
     time: new Date(),
   };
-  const messageForDB = { id: msgId, content: message, attachments, sender: user.id, chatId };
+  const messageForDB = { id: msgId, content: message, attachments, sender: user._id, chatId: chat._id };
   const newMessage = await Message.create(messageForDB);
   chat.lastMessage = newMessage._id;
   await chat.save();
@@ -75,7 +78,7 @@ const sendMessage = TryCatch(async (req, res, next) => {
 
 const getMessages = TryCatch(async (req, res, next) => {
   const pageSize = parseInt(req.query.pageSize as string) || 20;
-  const skip = (parseInt(req.query.page as string) - 1) * pageSize || 0;
+  const pageNumber = parseInt(req.query.pageNumber as string) || 1;
   const { chatId } = req.params;
   const chat = await Chat.findOne({id:chatId});
   if (!chat) {
@@ -88,21 +91,30 @@ const getMessages = TryCatch(async (req, res, next) => {
   if (!chat.members.includes(user?._id)) {
     return next(new ErrorHandler(400, "You are not in this Chat"));
   }
-  const [messages, total] = await Promise.all([Message.find({ chatId })
-    .select("-__v")
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(pageSize)
-    .populate("sender", "name image")
-    .lean(), Message.countDocuments({ chatId })]);
+
+  const total = await Message.countDocuments({ chatId:chat._id });
+
+  let messageQuery = Message.find({ chatId:chat._id })
+  .select("-__v -_id -chatId")
+  .sort({ createdAt: -1 })
+  .skip((pageNumber - 1) * pageSize)
+  .limit(pageSize)
+
+  if(chat.isGroup){
+    messageQuery = messageQuery.populate({ path:  "sender", select:"name image id -_id", })
+  }else{
+    messageQuery = messageQuery.populate({ path:  "sender", select:"id -_id", })
+
+  }
+  const messages = await messageQuery.lean();
   const totalPages = Math.ceil(total / pageSize);
-  sendSuccess({ res, data: { messages, totalPages, pageSize, page: parseInt(req.query.page as string) } });
+  sendSuccess({ res, data: messages, totalPages, pageSize, pageNumber  });
 });
 
 const sendRequest = TryCatch(async (req, res, next) => {
-  const target = req.body.userid;
+  const target = req.body.userId;
   if(!target){
-    return next(new ErrorHandler(400, "userid is required"));
+    return next(new ErrorHandler(400, "userId is required"));
   }
   const [user, user2] = await Promise.all([User.findOne({id:req.user.id}), User.findOne({id:target})]);
 
@@ -127,10 +139,7 @@ const acceptRequest = TryCatch(async (req, res, next) => {
   if(!request){
     return next(new ErrorHandler(404, "Request not found"));
   }
-  const [user, user2] = await Promise.all([User.findOne({id:req.user.id}), User.findOne({id:request.sender})]);
-  console.log(user, user2);
-  
-
+  const [user, user2] = await Promise.all([User.findOne({id:req.user.id}), User.findById(request.sender)]);
   if(!user || !user2){
     return next(new ErrorHandler(404, "User not found"));
   }
@@ -141,7 +150,8 @@ const acceptRequest = TryCatch(async (req, res, next) => {
     members:[user._id, user2._id],
     creator:user._id
   })
-  await Request.updateOne({sender:user._id, receiver:user2._id}, {status:'accepted'})
+  request.status = "accepted";
+  await request.save();
   sendSuccess({ res, message: "Chat accepted successfully" });
 })
 
