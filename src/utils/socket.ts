@@ -1,33 +1,28 @@
-import http from 'http';
-import { Server } from 'socket.io';
+import { parse } from "cookie";
+import { Server, Socket } from 'socket.io';
+import { NEW_MESSAGE } from '../constant/event';
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-app.use('/api', routes);
 
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: '*',
-    // methods: ['GET', 'POST'],
-  },
-});
 
-app.post('/emit-message', (req, res) => {
-  const message = req.body.message;
-  io.emit('chat message', message);
-  res.send({ status: 'Message sent', message: message });
-});
-io.on('connection', (socket) => {
-  console.log('a user connected');
+const socketEvent = (io:Server)=>{
+ 
+  io.on('connection', (socket:Socket) => {
+    console.log('a user connected');
+    io.on('headers', (headers:any, request:any) => {
+      const cookies = parse(request.headers.cookie);
+      console.log("cook",cookies);
+      
+    })
+    socket.on('disconnect', () => {
+      console.log('user disconnected');
+    });
+    socket.on(NEW_MESSAGE, ({msg})=>{
+      console.log(msg);
+      
+    })
+  })
+}
 
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
 
-  socket.on('chat message', (msg) => {
-    console.log('message: ' + msg);
-    io.emit('chat message', msg); // Broadcast the message to all clients
-  });
-});
+
+export { socketEvent };

@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import { Socket } from 'socket.io';
 
 
 interface UserType{
@@ -12,4 +13,5 @@ declare global {
       user: UserType;
     }
   }
+ 
 }
