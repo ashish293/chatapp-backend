@@ -56,6 +56,8 @@ const findUser = TryCatch(async (req, res, next) => {
 })
 
 const update = TryCatch(async (req, res, next) => {
+  console.log(req.file);
+  
   const { name, email, password, image } = req.body;
   const user = await User.findOne({id:req.user.id});
   if (!user) {

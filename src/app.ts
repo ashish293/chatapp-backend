@@ -14,7 +14,7 @@ import { socketEvent } from './utils/socket';
 import { socketAuth } from './middlewares/auth';
 
 
-// import { seedUsers, seedDirectChat, seedMessages, seedGroupChat } from './seeders/user.js';
+// import { seedUsers, seedDirectChat, seedMessages, seedGroupChat } from './seeders/user';
 config();
 const port = process.env.PORT || 9000;
 
