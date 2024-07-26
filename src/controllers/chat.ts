@@ -15,7 +15,14 @@ const getAllChat = TryCatch(async (req, res, next) => {
   if(!user){
     return next(new ErrorHandler(404, "User not found"));
   }
-  const chatList = await Chat.find({ members: user._id }).select("-__v -_id").lean();
+  const chatList = await Chat.find({ members: user._id }).select("-__v -_id -creator").populate({
+    path:"lastMessage",
+    select:"content createdAt sender attachments -_id",
+    populate:{
+      path:"sender",
+      select:"-_id id"
+    }
+  }).lean();
   const result = await Promise.all(chatList.map(async (item) => {
     if (item?.isGroup) {
       return item;

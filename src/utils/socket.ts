@@ -23,17 +23,19 @@ const socketEvent = (io:Server)=>{
       try {
         
      
-      const chat = await Chat.findOne({id:chatId}).lean()
+      const chat = await Chat.findOne({id:chatId})
+      if(!chat) return
       const id = uuid()
       const createdAt = new Date()
-      await Message.create({
+      const msg = await Message.create({
         id,
         chatId:chat?._id,
         content:message,
         sender:socket.data?.user?._id,
         createdAt
       })
-      if(!chat) return
+      chat.lastMessage = msg._id;
+      chat.save()
       const onlineMembers = chat.members?.reduce((acc, member)=>{
         console.log('mem', member);
         if(member._id.toString() == socket.data?.user?._id) return acc
