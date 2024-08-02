@@ -1,9 +1,13 @@
 import { TryCatch } from "../middlewares/error";
-import User,{ IUser } from "../models/user";
+import User from "../models/user";
 import bcrypt from 'bcrypt';
 import { ErrorHandler, sendSuccess, sendToken } from "../utils/utility";
 import {v4 as uuid} from 'uuid';
 
+
+interface MulterRequest extends Request {
+  file: any;
+}
 const signup = TryCatch(async (req, res, next) => {
   const { name, password, email } = req.body;
   if (!name || !password || !email) {
@@ -11,11 +15,11 @@ const signup = TryCatch(async (req, res, next) => {
   }
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    return next(new ErrorHandler(400, 'User already exists'))
+    return next(new ErrorHandler(400, 'User already exists with this email'))
   }
+  const url = (req.file as any)?.location;
   const hashPassword = await bcrypt.hash(password, 10);
-  const newUser = new User({ id: uuid(), name, email, password: hashPassword });
-  await newUser.save();
+  const newUser =  await User.create({ id: uuid(), name, email, password: hashPassword, image: url });
   sendToken(res, { id: newUser.id, name: newUser.name, image: newUser.image, email: newUser.email }, 201, 'User created successfully');
 })
 

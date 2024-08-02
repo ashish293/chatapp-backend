@@ -11,11 +11,7 @@ import { v4 as uuid } from 'uuid';
 const getAllChat = TryCatch(async (req, res, next) => {
   const pageSize = parseInt(req.query.pageSize as string) || 20;
   const skip = (parseInt(req.query.page as string) - 1) * pageSize || 0;
-  const user = await User.findOne({ id: req.user.id });
-  if(!user){
-    return next(new ErrorHandler(404, "User not found"));
-  }
-  const chatList = await Chat.find({ members: user._id }).select("-__v -_id -creator").populate({
+  const chatList = await Chat.find({ members: req.user._id }).select("-__v -_id -creator").populate({
     path:"lastMessage",
     select:"content createdAt sender attachments -_id",
     populate:{
@@ -42,44 +38,43 @@ const getAllChat = TryCatch(async (req, res, next) => {
   sendSuccess({ res, data: result });
 });
 
-const sendMessage = TryCatch(async (req, res, next) => {
+const sendMessageWithFile = TryCatch(async (req, res, next) => {
   const { chatId } = req.params;
   const { message } = req.body;
 
   const [chat, user] = await Promise.all([Chat.findOne({id:chatId}), User.findOne({id:req.user.id})]);
   if (!chat) {
     return next(new ErrorHandler(404, "Chat not found"));
-  }else if(!user){
-    return next(new ErrorHandler(404, "User not found"));
-  }else if (!chat.members.includes(user._id)) {
+  }else if (!chat.members.includes(req.user._id)) {
     return next(new ErrorHandler(400, "User not in this Chat"));
   }else if(!message){
     return next(new ErrorHandler(400, "Message is required"));
   }
-  // const files = req.files || [];
+  console.log(req.files);
+  
+  const attachments = (req.files as Array<any>)?.map((file:any)=>{
+    return file.location;
+  })
 
-  // Upload file here
-  const attachments:string[] = [];
   const msgId = uuid()
   const messageForRealtime = {
     id: msgId,
     content: message,
     attachments,
     sender: {
-      id: user.id,
-      name: user.name,
+      id: req.user.id,
+      name: req.user.name,
     },
     chatId,
     time: new Date(),
   };
-  const messageForDB = { id: msgId, content: message, attachments, sender: user._id, chatId: chat._id };
+  const messageForDB = { id: msgId, content: message, attachments, sender: req.user._id, chatId: chat._id };
   const newMessage = await Message.create(messageForDB);
   chat.lastMessage = newMessage._id;
   await chat.save();
   // chat.update
   // emitEvent(req, NEW_ATTACHMENT, chat.members, messageForRealtime);
   // emitEvent(req, NEW_MESSAGE_ALERT, chat.members, chatId);
-
   sendSuccess({ res, message: "Message sent Successfully" });
 });
 
@@ -91,11 +86,7 @@ const getMessages = TryCatch(async (req, res, next) => {
   if (!chat) {
     return next(new ErrorHandler(404, "Chat not found"));
   } 
-  const user = await User.findOne({id:req.user.id});
-  if (!user) {
-    return next(new ErrorHandler(404, "User not found"));
-  }
-  if (!chat.members.includes(user?._id)) {
+  if (!chat.members.includes(req.user?._id)) {
     return next(new ErrorHandler(400, "You are not in this Chat"));
   }
 
@@ -171,4 +162,4 @@ const getAllRequest = TryCatch(async (req, res, next) => {
   sendSuccess({ res, data: requests });
 })
 
-export { getAllChat, sendMessage, getMessages, sendRequest, acceptRequest, getAllRequest };
+export { getAllChat, sendMessageWithFile, getMessages, sendRequest, acceptRequest, getAllRequest };

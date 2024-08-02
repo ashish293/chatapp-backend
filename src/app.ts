@@ -7,7 +7,7 @@ import { connectDb } from './utils/connectDbCloud';
 import { errorMiddleware } from './middlewares/error';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
-import "./types/express"
+import "./types/dataType"
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { socketEvent } from './utils/socket';
@@ -40,7 +40,7 @@ app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true
 }));
-socketEvent(io);
+socketEvent(io, app);
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);

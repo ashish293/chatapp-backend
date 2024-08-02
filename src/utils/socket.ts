@@ -1,16 +1,14 @@
-import { parse } from "cookie";
 import { Server, Socket } from 'socket.io';
 import events from '../constant/events';
 import {v4 as uuid} from 'uuid'
 import Message from "../models/message";
 import Chat from "../models/chat";
-import {Types} from 'mongoose'
+import { Express } from "express";
 
-
-
-const socketEvent = (io:Server)=>{
+const socketEvent = (io:Server, app:Express)=>{
 
   const userList = new Map<string, string>()
+  app.set("userList", userList)
 
   io.on('connection', (socket:Socket) => {
     userList.set( socket.data?.user?._id?.toString(), socket.id);

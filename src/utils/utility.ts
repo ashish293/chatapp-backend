@@ -58,7 +58,7 @@ const sendSuccess = ({ res, status = 200, ...keys }: SendSuccessParams) => {
   res.status(status).json(response);
 }
 
-const emitEvent = (data: any) => {
+const emitEvent = (event: string, to: string, data: any) => {
   console.log("Event emitted", data);
 }
 

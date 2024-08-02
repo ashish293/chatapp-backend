@@ -1,9 +1,12 @@
 import { Types } from 'mongoose';
-import { Socket } from 'socket.io';
 
 
 interface UserType{
-  id: string
+  id: string,
+  _id: Types.ObjectId,
+  name: string,
+  email: string,
+  image?: string
 }
 
 
@@ -15,3 +18,5 @@ declare global {
   }
  
 }
+
+export {UserType}
