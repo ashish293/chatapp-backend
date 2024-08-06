@@ -1,21 +1,20 @@
 import jwt, { JwtPayload, VerifyErrors } from "jsonwebtoken";
 import { Request, Response, NextFunction } from 'express';
-import { TryCatch } from "./error";
-import { emitEvent, ErrorHandler } from "../utils/utility";
+import { TryCatch } from "./error.js";
+import { emitEvent, ErrorHandler } from "../utils/utility.js";
 import { config } from "dotenv";
-import { ExtendedError } from "socket.io/dist/namespace";
 import { Socket } from "socket.io";
-import User from "../models/user";
-import { UserType } from "../types/dataType";
+import User from "../models/user.js";
+import { UserType } from "../types/dataType.js";
 config();
 
-type SocketAuthType = (socket:Socket, next:(err?:ExtendedError)=>void)=>void
+type SocketAuthType = (socket:Socket, next:(err?:any)=>void)=>void
 
 interface JwtUserType extends JwtPayload {
   id:string
 }
 
-const getUser = async(token:string, next:(err?:ExtendedError)=>void|NextFunction)=>{
+const getUser = async(token:string, next:(err?:any)=>void|NextFunction)=>{
   if (!token) {
     return next(new ErrorHandler(401, "Unauthorized"));
   }

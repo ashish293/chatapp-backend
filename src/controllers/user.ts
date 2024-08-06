@@ -1,7 +1,7 @@
-import { TryCatch } from "../middlewares/error";
-import User from "../models/user";
+import { TryCatch } from "../middlewares/error.js";
+import User from "../models/user.js";
 import bcrypt from 'bcrypt';
-import { ErrorHandler, sendSuccess, sendToken } from "../utils/utility";
+import { ErrorHandler, sendSuccess, sendToken } from "../utils/utility.js";
 import {v4 as uuid} from 'uuid';
 
 

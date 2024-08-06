@@ -1,8 +1,8 @@
 import { Server, Socket } from 'socket.io';
-import events from '../constant/events';
+import events from '../constant/events.js';
 import {v4 as uuid} from 'uuid'
-import Message from "../models/message";
-import Chat from "../models/chat";
+import Message from "../models/message.js";
+import Chat from "../models/chat.js";
 import { Express } from "express";
 
 const socketEvent = (io:Server, app:Express)=>{

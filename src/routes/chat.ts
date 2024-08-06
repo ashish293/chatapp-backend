@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { isAuthenticated } from "../middlewares/auth";
-import { acceptRequest, getAllChat, getAllRequest, getMessages, sendMessageWithFile, sendRequest } from "../controllers/chat";
-import { upload } from "../middlewares/multerStorage";
+import { isAuthenticated } from "../middlewares/auth.js";
+import { acceptRequest, getAllChat, getAllRequest, getMessages, sendMessageWithFile, sendRequest } from "../controllers/chat.js";
+import { upload } from "../middlewares/multerStorage.js";
 
 const chatRouter = Router();
 

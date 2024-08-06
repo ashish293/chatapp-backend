@@ -1,7 +1,7 @@
-import User from "../models/user";
+import User from "../models/user.js";
 import { faker } from "@faker-js/faker";
-import Chat from "../models/chat";
-import Message from "../models/message";
+import Chat from "../models/chat.js";
+import Message from "../models/message.js";
 import { v4 as uuid } from 'uuid';
 
 

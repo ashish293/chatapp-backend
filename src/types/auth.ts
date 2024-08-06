@@ -1,8 +1,7 @@
 import { Socket } from "socket.io"
 import { JwtPayload } from "jsonwebtoken"
-import { ExtendedError } from "socket.io/dist/namespace"
 
-type SocketAuthType = (socket:Socket, next:(err?:ExtendedError)=>void)=>void
+type SocketAuthType = (socket:Socket, next:(err?:any)=>void)=>void
 
 interface JwtUserType extends JwtPayload {
   id:string

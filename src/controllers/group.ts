@@ -1,9 +1,9 @@
 // import { ALERT, REFREST_CHAT } from "../constant/event";
-import { TryCatch } from "../middlewares/error";
-import Chat from "../models/chat";
-import Message from "../models/message";
-import User from "../models/user";
-import { ErrorHandler, emitEvent, sendSuccess } from "../utils/utility";
+import { TryCatch } from "../middlewares/error.js";
+import Chat from "../models/chat.js";
+import Message from "../models/message.js";
+import User from "../models/user.js";
+import { ErrorHandler, emitEvent, sendSuccess } from "../utils/utility.js";
 
 const newGroup = TryCatch(async (req, res, next) => {
 

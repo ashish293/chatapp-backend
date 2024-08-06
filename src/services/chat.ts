@@ -1,9 +1,9 @@
 import {Types} from 'mongoose'
-import Chat from '../models/chat'
-import Message from '../models/message'
+import Chat from '../models/chat.js'
+import Message from '../models/message.js'
 import { v4 as uuid } from 'uuid';
-import { UserType } from '../types/dataType';
-import { emitEvent } from '../utils/utility';
+import { UserType } from '../types/dataType.js';
+import { emitEvent } from '../utils/utility.js';
 type MessageServiceType = (chatId:Types.ObjectId, message:string, user:UserType, userList:Map<string, string>)=>Promise<any>
 
 const sendMessageService:MessageServiceType = async ( chatId, message, user, userList)=>{
@@ -19,7 +19,7 @@ const sendMessageService:MessageServiceType = async ( chatId, message, user, use
     sender:user._id,
     createdAt
   })
-  chat.lastMessage = msg._id;                                                                g'f''d'][ds[.]]
+  chat.lastMessage = msg._id;                                                                
   chat.save()
  
   const realtimeResponse = {
@@ -36,8 +36,8 @@ const sendMessageService:MessageServiceType = async ( chatId, message, user, use
     return acc
   },<string[]>[])
   console.log('online', onlineMembers);
-  emitEvent()
+  // emitEvent()
 
-  io.to(onlineMembers).emit(events.NEW_MESSAGE,realtimeResponse )
+  // io.to(onlineMembers).emit(events.NEW_MESSAGE,realtimeResponse )
 }
 

@@ -1,17 +1,17 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import routes from './routes/index';
+import routes from './routes/index.js';
 import { config } from 'dotenv';
-import { connectDb } from './utils/connectDbCloud';
-import { errorMiddleware } from './middlewares/error';
+import { connectDb } from './utils/connectDbCloud.js';
+import { errorMiddleware } from './middlewares/error.js';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import "./types/dataType"
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
-import { socketEvent } from './utils/socket';
-import { socketAuth } from './middlewares/auth';
+import { socketEvent } from './utils/socket.js';
+import { socketAuth } from './middlewares/auth.js';
 
 
 // import { seedUsers, seedDirectChat, seedMessages, seedGroupChat } from './seeders/user';

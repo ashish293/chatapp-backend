@@ -1,10 +1,10 @@
 // import { NEW_ATTACHMENT, NEW_MESSAGE_ALERT } from "../constant/event";
-import { TryCatch } from "../middlewares/error";
-import Chat from "../models/chat";
-import Message from "../models/message";
-import Request from "../models/request";
-import User from "../models/user";
-import { ErrorHandler, emitEvent, sendSuccess } from "../utils/utility";
+import { TryCatch } from "../middlewares/error.js";
+import Chat from "../models/chat.js";
+import Message from "../models/message.js";
+import Request from "../models/request.js";
+import User from "../models/user.js";
+import { ErrorHandler, emitEvent, sendSuccess } from "../utils/utility.js";
 import { v4 as uuid } from 'uuid';
 
 

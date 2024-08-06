@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { findUser, logout, login, signup, update, } from '../controllers/user';
-import { isAuthenticated } from "../middlewares/auth";
-import { upload } from "../middlewares/multerStorage";
+import { findUser, logout, login, signup, update, } from '../controllers/user.js';
+import { isAuthenticated } from "../middlewares/auth.js";
+import { upload } from "../middlewares/multerStorage.js";
 
 
 const userRouter = Router();
