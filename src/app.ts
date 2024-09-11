@@ -7,7 +7,7 @@ import { connectDb } from './utils/connectDbCloud.js';
 import { errorMiddleware } from './middlewares/error.js';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
-import "./types/dataType"
+import "./types/dataType.js"
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { socketEvent } from './utils/socket.js';
