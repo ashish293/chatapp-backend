@@ -23,7 +23,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors:{
-    origin: 'http://localhost:5173',
+    origin: 'https://chatapp-frontend-uayj.vercel.app',
     credentials: true
   },
   cookie:true
@@ -37,7 +37,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'https://chatapp-frontend-uayj.vercel.app',
   credentials: true
 }));
 socketEvent(io, app);
