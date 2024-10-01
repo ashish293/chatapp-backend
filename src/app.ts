@@ -45,5 +45,8 @@ socketEvent(io, app);
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
 app.use('/api', routes);
 app.use(errorMiddleware);
