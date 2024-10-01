@@ -18,11 +18,12 @@ const port = process.env.PORT || 9000;
 const onlineUsers = new Map();
 const app = express();
 const server = createServer(app);
+const corsConfig = {
+    origin: process.env.FRONTEND_URL,
+    credentials: true
+};
 const io = new Server(server, {
-    cors: {
-        origin: 'https://chatapp-frontend-uayj.vercel.app',
-        credentials: true
-    },
+    cors: corsConfig,
     cookie: true
 });
 app.set("io", io);
@@ -33,10 +34,7 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors({
-    origin: 'https://chatapp-frontend-uayj.vercel.app',
-    credentials: true
-}));
+app.use(cors(corsConfig));
 socketEvent(io, app);
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
