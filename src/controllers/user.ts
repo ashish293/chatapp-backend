@@ -24,6 +24,8 @@ const signup = TryCatch(async (req, res, next) => {
 })
 
 const login = TryCatch(async (req, res, next) => {
+  console.log('loginss');
+  
   const { password, email } = req.body;
   if (!password || !email) {
     return next(new ErrorHandler(400, 'All fields are required'))

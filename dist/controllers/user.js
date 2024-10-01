@@ -18,6 +18,7 @@ const signup = TryCatch(async (req, res, next) => {
     sendToken(res, { id: newUser.id, name: newUser.name, image: newUser.image, email: newUser.email }, 201, 'User created successfully');
 });
 const login = TryCatch(async (req, res, next) => {
+    console.log('loginss');
     const { password, email } = req.body;
     if (!password || !email) {
         return next(new ErrorHandler(400, 'All fields are required'));

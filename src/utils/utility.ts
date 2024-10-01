@@ -21,8 +21,8 @@ const sendToken = (res: Response, user: UserType, code: number, message: string)
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!);
   const options = {
     expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-    httpOnly: false, // set to true to prevent client-side access to the cookie
-    secure: true // use secure cookies in production
+    httpOnly: true, // set to true to prevent client-side access to the cookie
+    secure: true, // use secure cookies in production
   };
   res.status(code).cookie(process.env.JWT_COOKIE_NAME!, token, options).json({
     success: true,

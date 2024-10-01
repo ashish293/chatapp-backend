@@ -5,6 +5,8 @@ interface CustomError extends Error {
 }
 
 const errorMiddleware = (err: CustomError, req: Request, res: Response, next: NextFunction) => {
+  console.log(err);
+  
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Internal Server Error";
 
@@ -20,8 +22,12 @@ type TryCatchType = (fn: (req: Request, res: Response, next: NextFunction) => Pr
 
 const TryCatch: TryCatchType = (fn) => async (req, res, next) => {
   try {
+    console.log('he');
     await fn(req, res, next)
+    
   } catch (error) {
+    console.log('h2');
+    
     console.log(error)
     next(error)
   }
