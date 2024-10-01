@@ -28,7 +28,6 @@ const sendToken = (res: Response, user: UserType, code: number, message: string)
   res.status(code).cookie(process.env.JWT_COOKIE_NAME!, token, options).json({
     success: true,
     user,
-    token,
     message
   });
 }
