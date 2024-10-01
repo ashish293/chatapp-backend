@@ -18,13 +18,21 @@ const port = process.env.PORT || 9000;
 const onlineUsers = new Map();
 const app = express();
 const server = createServer(app);
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 const corsConfig = {
-    origin: process.env.FRONTEND_URL,
-    credentials: true
+    origin: (origin, callback) => {
+        if (allowedOrigins.includes(origin) || !origin) {
+            callback(null, origin);
+        }
+        else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
 };
 const io = new Server(server, {
     cors: corsConfig,
-    cookie: true
+    cookie: true,
 });
 app.set("io", io);
 app.set("onlineUsers", onlineUsers);
