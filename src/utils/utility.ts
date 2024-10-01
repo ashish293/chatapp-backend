@@ -23,6 +23,7 @@ const sendToken = (res: Response, user: UserType, code: number, message: string)
     expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
     httpOnly: true, // set to true to prevent client-side access to the cookie
     secure: true, // use secure cookies in production
+    sameSite: 'none' as const
   };
   res.status(code).cookie(process.env.JWT_COOKIE_NAME!, token, options).json({
     success: true,
