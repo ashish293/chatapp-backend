@@ -21,13 +21,10 @@ const server = createServer(app);
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 const corsConfig = {
     origin: (origin, callback) => {
-        console.log('origin', origin, allowedOrigins);
         if (allowedOrigins.includes(origin) || !origin) {
             callback(null, origin);
-            console.log('allowed');
         }
         else {
-            console.log('not allowed');
             callback(new Error('Not allowed by CORS'));
         }
     },

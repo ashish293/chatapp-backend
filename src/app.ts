@@ -24,14 +24,10 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 
 const corsConfig = {
   origin: (origin: string | undefined, callback: (error: Error | null, origin?: string) => void) => {
-    console.log('origin', origin,  allowedOrigins);
     
     if (allowedOrigins.includes(origin as string) || !origin) {
       callback(null, origin);
-      console.log('allowed');
-      
     } else {
-      console.log('not allowed');
       callback(new Error('Not allowed by CORS'));
     }
   },
