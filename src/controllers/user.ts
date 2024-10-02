@@ -42,7 +42,8 @@ const login = TryCatch(async (req, res, next) => {
 })
 
 const logout = TryCatch(async (req, res, next) => {
-  res.clearCookie('chat-token');
+  res.clearCookie('chat-token', {
+    sameSite: 'none',});
   res.status(200).json({ success: true, message: 'Logged out successfully' });
 })
 
