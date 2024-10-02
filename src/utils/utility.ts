@@ -17,7 +17,14 @@ class ErrorHandler extends Error {
   }
 }
 
-const sendToken = (res: Response, user: UserType, code: number, message: string) => {
+const removeCookie = (res: Response) => {
+  res.clearCookie(process.env.JWT_COOKIE_NAME!, {
+    sameSite: 'none', secure: true, httpOnly: true,
+  });
+  res.status(200).json({ success: true, message: 'Logged out successfully' });
+}
+
+const sendCookie = (res: Response, user: UserType, code: number, message: string) => {
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!);
   const options = {
     expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
@@ -62,4 +69,4 @@ const emitEvent = (event: string, to: string, data: any) => {
   console.log("Event emitted", data);
 }
 
-export { ErrorHandler, sendToken, emitEvent, sendSuccess };
+export { ErrorHandler, sendCookie, emitEvent, sendSuccess , removeCookie};

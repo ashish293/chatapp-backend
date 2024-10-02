@@ -1,7 +1,7 @@
 import { TryCatch } from "../middlewares/error.js";
 import User from "../models/user.js";
 import bcrypt from 'bcrypt';
-import { ErrorHandler, sendSuccess, sendToken } from "../utils/utility.js";
+import { ErrorHandler, sendSuccess, sendCookie, removeCookie,  } from "../utils/utility.js";
 import {v4 as uuid} from 'uuid';
 
 
@@ -20,7 +20,7 @@ const signup = TryCatch(async (req, res, next) => {
   const url = (req.file as any)?.location;
   const hashPassword = await bcrypt.hash(password, 10);
   const newUser =  await User.create({ id: uuid(), name, email, password: hashPassword, image: url });
-  sendToken(res, { id: newUser.id, name: newUser.name, image: newUser.image, email: newUser.email }, 201, 'User created successfully');
+  sendCookie(res, { id: newUser.id, name: newUser.name, image: newUser.image, email: newUser.email }, 201, 'User created successfully');
 })
 
 const login = TryCatch(async (req, res, next) => {
@@ -38,13 +38,11 @@ const login = TryCatch(async (req, res, next) => {
   if (!isPasswordCorrect) {
     return next(new ErrorHandler(400, 'Invalid credentials'))
   }
-  sendToken(res, { id: existingUser.id, name: existingUser.name, image: existingUser.image, email: existingUser.email }, 200, 'Login successful');
+  sendCookie(res, { id: existingUser.id, name: existingUser.name, image: existingUser.image, email: existingUser.email }, 200, 'Login successful');
 })
 
 const logout = TryCatch(async (req, res, next) => {
-  res.clearCookie('chat-token', {
-    sameSite: 'none',});
-  res.status(200).json({ success: true, message: 'Logged out successfully' });
+  removeCookie(res)    
 })
 
 const findUser = TryCatch(async (req, res, next) => {
@@ -77,7 +75,7 @@ const update = TryCatch(async (req, res, next) => {
   user.image = image;
   console.log(name, email, hashPassword, image);
   // console.log(req.file);
-  sendToken(res, { id: user.id, name: user.name, image: user.image, email: user.email }, 200, 'User updated successfully');
+  sendCookie(res, { id: user.id, name: user.name, image: user.image, email: user.email }, 200, 'User updated successfully');
 })
 
 export { signup, login, findUser, update, logout };
